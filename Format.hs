@@ -56,11 +56,11 @@ showf = runContSt . mapContSt (($ "") . appEndo) . runFormat . toFormat
 
 -- | Output a constant string.
 lits :: ShowS -> Format b b
-lits = Format . contId . Endo
+lits = Format . now . Endo
 
 -- | Expect an argument that can be converted to a 'ShowS'.
 args :: (a -> ShowS) -> Format b (a -> b)
-args f = Format (contArr (Endo . f))
+args f = Format (later (Endo . f))
 
 -- | Transform the output of a formatter.
 mapFormat :: (ShowS -> ShowS) -> Format a b -> Format a b

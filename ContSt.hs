@@ -13,7 +13,7 @@ module ContSt (
   ContSt, runContSt,
   
   -- * Building continuations
-  contId, contArr, mapContSt
+  now, later, mapContSt
   
   ) where
 
@@ -73,12 +73,12 @@ instance Monoid m => Category (ContSt m) where
 f <> g = Comp (fmap (\s -> fmap (mappend s) g) f)
 
 -- | Wrap a constant.
-contId :: m -> ContSt m b b
-contId = ContSt . Id
+now :: m -> ContSt m b b
+now = ContSt . Id
 
 -- | Expect an argument.
-contArr :: (a -> m) -> ContSt m b (a -> b)
-contArr = ContSt . Arr
+later :: (a -> m) -> ContSt m b (a -> b)
+later = ContSt . Arr
 
 -- | Map a continuation to a different monoid.
 mapContSt :: (m -> n) -> ContSt m a b -> ContSt n a b
