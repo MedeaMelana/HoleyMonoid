@@ -40,8 +40,9 @@ data ContSt m r a where
   ContSt :: Functor f => (f r -> a) -> f m -> ContSt m r a
 
 instance Monoid m => Category (ContSt m) where
-  id                        = now mempty
-  ContSt af f . ContSt ag g = ContSt (af . fmap ag . runComp) (f <> g)
+  id = now mempty
+  ContSt apf f . ContSt apg g =
+    ContSt (apf . fmap apg . runComp) (f <> g)
 
 (<>) :: (Functor f, Functor g, Monoid m) => f m -> g m -> (f :.: g) m
 f <> g = Comp (fmap (\s -> fmap (mappend s) g) f)
@@ -56,8 +57,8 @@ later = ContSt runArr . Arr
 
 -- | Map a continuation to a different monoid.
 mapContSt :: (m -> n) -> ContSt m r a -> ContSt n r a
-mapContSt g (ContSt af f) = ContSt af (fmap g f)
+mapContSt g (ContSt ap f) = ContSt ap (fmap g f)
 
--- | Run the continutation, producing the resulting monoid.
+-- | Run the continuation, producing the resulting monoid.
 runContSt :: ContSt m m a -> a
 runContSt (ContSt af f) = af f
