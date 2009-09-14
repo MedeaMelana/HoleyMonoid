@@ -1,0 +1,14 @@
+Name:           Format
+Version:        0.1
+Synopsis:       Continuation-based printf
+Description:   	Continuation-based printf
+
+Cabal-Version:  >= 1.2
+License:        BSD3
+License-file:   LICENSE
+Category:       Text
+Build-type:     Simple
+
+Library
+  Exposed-Modules:  Format, ContSt
+  Build-Depends:  base >= 4, base < 5
