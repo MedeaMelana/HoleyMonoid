@@ -34,10 +34,6 @@ import Data.Monoid
 newtype Format a b = Format { runFormat :: ContSt (Endo String) a b }
   deriving Category
 
-instance Monoid (Format b b) where
-  mempty = Format mempty
-  Format f `mappend` Format g = Format (f `mappend` g)
-
 -- | Compose two 'FormatLike's.
 (%) :: (FormatLike x b c, FormatLike y a b) => x -> y -> Format a c
 f % g = toFormat f . toFormat g

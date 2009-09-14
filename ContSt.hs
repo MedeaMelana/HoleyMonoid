@@ -1,11 +1,5 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE UndecidableInstances #-}
 
 
 module ContSt (
@@ -25,15 +19,15 @@ import Data.Monoid
 
 -- Functor building blocks.
 
-newtype Id a = Id a
+newtype Id a = Id { runId :: a }
 instance Functor Id where
   fmap f (Id x) = Id (f x)
 
-newtype Arr a b = Arr (a -> b)
+newtype Arr a b = Arr { runArr :: a -> b }
 instance Functor (Arr a) where
   fmap f (Arr g) = Arr (f . g)
 
-newtype (:.:) f g a = Comp (f (g a))
+newtype (:.:) f g a = Comp { runComp :: f (g a) }
 instance (Functor f, Functor g) => Functor (f :.: g) where
   fmap f (Comp fga) = Comp (fmap (fmap f) fga)
 
@@ -41,17 +35,15 @@ instance (Functor f, Functor g) => Functor (f :.: g) where
 
 -- Unwrapping of functors.
 
-class (Functor f) => Apply f a b | f -> a b where
-  apply :: f a -> b
+data Apply f a b where
+  ApplyId   :: Apply Id b b
+  ApplyArr  :: Apply (Arr a) b (a -> b)
+  ApplyComp :: Functor f => Apply f b c -> Apply g a b -> Apply (f :.: g) a c
 
-instance Apply Id a a where
-  apply (Id a) = a
-
-instance Apply (Arr a) b (a -> b) where
-  apply (Arr f) = f
-
-instance (Apply f b c, Apply g a b) => Apply (f :.: g) a c where
-  apply (Comp fga) = apply (fmap apply fga)
+apply :: Apply f a b -> f a -> b
+apply ApplyId         = runId
+apply ApplyArr        = runArr
+apply (ApplyComp f g) = apply f . fmap (apply g) . runComp
 
 
 
@@ -59,31 +51,27 @@ instance (Apply f b c, Apply g a b) => Apply (f :.: g) a c where
 
 -- | A continuation-style monoid wrapper. Composition is possible through the ('.') operator in type class 'Category'.
 data ContSt m a b where
-  ContSt :: Apply f a b => f m -> ContSt m a b
-
-instance Monoid m => Monoid (ContSt m b b) where
-  mempty = id
-  mappend = (.)
+  ContSt :: Functor f => Apply f a b -> f m -> ContSt m a b
 
 instance Monoid m => Category (ContSt m) where
-  id = ContSt (Id mempty)
-  ContSt f . ContSt g = ContSt (f <> g)
+  id = ContSt ApplyId (Id mempty)
+  ContSt af f . ContSt ag g = ContSt (ApplyComp af ag) (f <> g)
 
 (<>) :: (Functor f, Functor g, Monoid m) => f m -> g m -> (f :.: g) m
 f <> g = Comp (fmap (\s -> fmap (mappend s) g) f)
 
 -- | Wrap a constant.
 now :: m -> ContSt m b b
-now = ContSt . Id
+now = ContSt ApplyId . Id
 
 -- | Expect an argument.
 later :: (a -> m) -> ContSt m b (a -> b)
-later = ContSt . Arr
+later = ContSt ApplyArr . Arr
 
 -- | Map a continuation to a different monoid.
 mapContSt :: (m -> n) -> ContSt m a b -> ContSt n a b
-mapContSt g (ContSt f) = ContSt (fmap g f)
+mapContSt g (ContSt af f) = ContSt af (fmap g f)
 
 -- | Run the continutation, producing the resulting monoid.
 runContSt :: ContSt m m b -> b
-runContSt (ContSt f) = apply f
+runContSt (ContSt af f) = apply af f
