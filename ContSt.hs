@@ -44,6 +44,9 @@ instance Monoid m => Category (ContSt m) where
   ContSt apf f . ContSt apg g =
     ContSt (apf . fmap apg . runComp) (f <> g)
 
+instance Functor (ContSt m r) where
+  fmap g (ContSt apf f) = ContSt (g . apf) f
+
 (<>) :: (Functor f, Functor g, Monoid m) => f m -> g m -> (f :.: g) m
 f <> g = Comp (fmap (\s -> fmap (mappend s) g) f)
 
@@ -61,4 +64,4 @@ mapContSt g (ContSt ap f) = ContSt ap (fmap g f)
 
 -- | Run the continuation, producing the resulting monoid.
 runContSt :: ContSt m m a -> a
-runContSt (ContSt af f) = af f
+runContSt (ContSt apf f) = apf f
