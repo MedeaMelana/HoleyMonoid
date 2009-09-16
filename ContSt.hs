@@ -12,9 +12,6 @@ import Control.Category
 import Data.Monoid
 
 
-
--- The Format category.
-
 newtype ContSt m r a = Cont { runCont :: (m -> r) -> a }
 
 now :: m -> ContSt m r r
