@@ -31,13 +31,14 @@ import Data.Monoid
 newtype HoleyMonoid m r a = HoleyMonoid { runHM :: (m -> r) -> a }
 
 instance Monoid m => Category (HoleyMonoid m) where
-  id = now mempty
+  id    = now mempty
   f . g = f `bind` \a -> g `bind` \b -> now (a `mappend` b)
 
 -- | Insert a constant monoidal value.
 now :: m -> HoleyMonoid m r r
 now a = HoleyMonoid ($ a)
 
+-- | Monadic indexed bind for holey monoids.
 bind :: HoleyMonoid m b c -> (m -> HoleyMonoid n a b) -> HoleyMonoid n a c
 m `bind` f = HoleyMonoid $ \k -> runHM m (\a -> runHM (f a) k)
 

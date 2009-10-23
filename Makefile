@@ -1,5 +1,5 @@
 run:
-	ghci -Wall HoleyMonoid
+	ghci -Wall Data.HoleyMonoid
 
 clean:
 	rm -rf dist
