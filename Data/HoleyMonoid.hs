@@ -11,7 +11,7 @@
 --
 -- > import qualified Data.HoleyMonoid as HM
 
-module HoleyMonoid (
+module Data.HoleyMonoid (
   HoleyMonoid, run,
   now, later, map
   
