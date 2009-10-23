@@ -21,7 +21,7 @@ module Format (
   ) where
 
 
-import ContSt
+import qualified Data.HoleyMonoid as HM
 
 import Prelude hiding (id, (.))
 import Control.Category
@@ -31,7 +31,7 @@ import Data.Monoid
 
 -- The Format category.
 
-newtype Format a b = Format { runFormat :: ContSt (Endo String) a b }
+newtype Format a b = Format { runFormat :: HM.HoleyMonoid (Endo String) a b }
   deriving Category
 
 -- | Compose two 'FormatLike's.
@@ -40,11 +40,11 @@ f % g = toFormat f . toFormat g
 
 -- | Format according to formatter @x@, producing a 'ShowS'.
 showsf :: FormatLike x ShowS b => x -> b
-showsf = runContSt . mapContSt appEndo . runFormat . toFormat
+showsf = HM.run . HM.map appEndo . runFormat . toFormat
 
 -- | Format according to formatter @x@, producing a 'String'.
 showf :: FormatLike x String b => x -> b
-showf = runContSt . mapContSt (($ "") . appEndo) . runFormat . toFormat
+showf = HM.run . HM.map (($ "") . appEndo) . runFormat . toFormat
 
 
 
@@ -52,15 +52,15 @@ showf = runContSt . mapContSt (($ "") . appEndo) . runFormat . toFormat
 
 -- | Output a constant string.
 lits :: ShowS -> Format b b
-lits = Format . now . Endo
+lits = Format . HM.now . Endo
 
 -- | Expect an argument that can be converted to a 'ShowS'.
 args :: (a -> ShowS) -> Format b (a -> b)
-args f = Format (later (Endo . f))
+args f = Format (HM.later (Endo . f))
 
 -- | Transform the output of a formatter.
 mapFormat :: (ShowS -> ShowS) -> Format a b -> Format a b
-mapFormat g (Format f) = Format (mapContSt (Endo . g . appEndo) f)
+mapFormat g (Format f) = Format (HM.map (Endo . g . appEndo) f)
 
 
 
