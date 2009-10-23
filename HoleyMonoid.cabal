@@ -1,7 +1,14 @@
-Name:           Format
+Name:           HoleyMonoid
 Version:        0.1
-Synopsis:       Continuation-based printf
-Description:   	Continuation-based printf
+Synopsis:       Monoids with holes.
+Description:   	The 'HoleyMonoid' allows building monoidal values of which certain components are to be filled in later. For example:
+                .
+                > > let holey = now "x = "
+                >             . later show
+                >             . now ", y = "
+                >             . later show
+                > > run holey 3 5
+                > "x = 3, y = 5"
 
 Cabal-Version:  >= 1.2
 License:        BSD3
@@ -10,5 +17,5 @@ Category:       Text
 Build-type:     Simple
 
 Library
-  Exposed-Modules:  Format, ContSt
-  Build-Depends:  base >= 4, base < 5
+  Exposed-Modules:  HoleyMonoid
+  Build-Depends:    base >= 4, base < 5

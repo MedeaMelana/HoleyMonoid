@@ -1,5 +1,5 @@
 run:
-	ghci -Wall Format
+	ghci -Wall HoleyMonoid
 
 clean:
 	rm -rf dist
@@ -9,5 +9,5 @@ docs:
 	cabal haddock
 
 opendocs: docs
-	open dist/doc/html/Format/index.html
+	open dist/doc/html/HoleyMonoid/index.html
 
