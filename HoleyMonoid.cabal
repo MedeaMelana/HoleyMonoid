@@ -13,9 +13,9 @@ Description:   	The 'HoleyMonoid' allows building monoidal values of which certa
 Cabal-Version:  >= 1.2
 License:        BSD3
 License-file:   LICENSE
-Category:       Text
+Category:       Data Structures
 Build-type:     Simple
 
 Library
-  Exposed-Modules:  HoleyMonoid
+  Exposed-Modules:  Data.HoleyMonoid
   Build-Depends:    base >= 4, base < 5
