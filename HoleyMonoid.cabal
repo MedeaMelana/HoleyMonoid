@@ -13,14 +13,18 @@ Description:   	The 'HoleyMonoid' allows building monoidal values of which certa
 Author:         Martijn van Steenbergen
 Maintainer:     Martijn van Steenbergen <martijn@van.steenbergen.nl>
 Stability:      Experimental
-Copyright:      Some Rights Reserved (CC) 2009 Martijn van Steenbergen
-Homepage:       http://code.google.com/p/monoid-cont/
+Copyright:      Some Rights Reserved (CC) 2009-2015 Martijn van Steenbergen
+Homepage:       https://github.com/MedeaMelana/HoleyMonoid
 
-Cabal-Version:  >= 1.2
+Cabal-Version:  >= 1.6
 License:        BSD3
 License-file:   LICENSE
 Category:       Data Structures
 Build-type:     Simple
+
+Source-Repository head
+  Type:         git
+  Location:     https://github.com/MedeaMelana/HoleyMonoid
 
 Library
   Exposed-Modules:  Data.HoleyMonoid
