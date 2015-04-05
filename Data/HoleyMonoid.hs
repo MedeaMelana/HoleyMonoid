@@ -18,6 +18,7 @@ module Data.HoleyMonoid (
   ) where
 
 import Prelude hiding (id, (.), map)
+import Control.Applicative
 import Control.Category
 import Data.Monoid
 
@@ -33,6 +34,17 @@ newtype HoleyMonoid m r a = HoleyMonoid { runHM :: (m -> r) -> a }
 instance Monoid m => Category (HoleyMonoid m) where
   id    = now mempty
   f . g = f `bind` \a -> g `bind` \b -> now (a `mappend` b)
+
+instance Functor (HoleyMonoid m r) where
+  fmap f (HoleyMonoid g) = HoleyMonoid (f . g)
+
+instance Applicative (HoleyMonoid m r) where
+  pure x = HoleyMonoid (pure x)
+  HoleyMonoid f <*> HoleyMonoid g = HoleyMonoid (f <*> g)
+
+instance Monad (HoleyMonoid m r) where
+  return x = HoleyMonoid (return x)
+  HoleyMonoid f >>= g = HoleyMonoid (f >>= \x -> runHM (g x))
 
 -- | Insert a constant monoidal value.
 now :: m -> HoleyMonoid m r r
