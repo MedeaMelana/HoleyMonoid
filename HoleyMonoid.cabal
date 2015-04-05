@@ -3,10 +3,9 @@ Version:        0.1.1
 Synopsis:       Monoids with holes.
 Description:   	The 'HoleyMonoid' allows building monoidal values of which certain components are to be filled in later. For example:
                 .
-                > > let holey = now "x = "
-                >             . later show
-                >             . now ", y = "
-                >             . later show
+                > > let holey :: (Show a, Show b) => HoleyMonoid String r (a -> b -> r)
+                >       holey = now "x = " . later show . now ", y = " . later show
+                >
                 > > run holey 3 5
                 > "x = 3, y = 5"
 

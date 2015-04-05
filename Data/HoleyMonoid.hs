@@ -1,9 +1,8 @@
 -- | Monoids with holes. The 'HoleyMonoid' allows building monoidal values of which certain components are to be filled in later. For example:
 --
--- > > let holey = now "x = "
--- >             . later show
--- >             . now ", y = "
--- >             . later show
+-- > > let holey :: (Show a, Show b) => HoleyMonoid String r (a -> b -> r)
+-- >       holey = now "x = " . later show . now ", y = " . later show
+-- >
 -- > > run holey 3 5
 -- > "x = 3, y = 5"
 --
@@ -13,7 +12,7 @@
 
 module Data.HoleyMonoid (
   HoleyMonoid(..), run,
-  now, later, map
+  now, later, bind, map
   
   ) where
 
@@ -50,22 +49,22 @@ instance Monad (HoleyMonoid m r) where
 now :: m -> HoleyMonoid m r r
 now a = HoleyMonoid ($ a)
 
--- | Monadic indexed bind for holey monoids.
-bind :: HoleyMonoid m b c -> (m -> HoleyMonoid n a b) -> HoleyMonoid n a c
-m `bind` f = HoleyMonoid $ \k -> runHM m (\a -> runHM (f a) k)
-
 -- | Insert a monoidal value that is not specified until the computation is
 -- 'run'. The argument that is expected later is converted to the monoid type
 -- using the given conversion function.
 later :: (a -> m) -> HoleyMonoid m r (a -> r)
 later f = HoleyMonoid (. f)
 
--- | Convert between underlying 'Monoid' types.
+-- | Monadic indexed bind on the underlying 'Monoid' types.
+bind :: HoleyMonoid m b c -> (m -> HoleyMonoid n a b) -> HoleyMonoid n a c
+m `bind` f = HoleyMonoid $ \k -> runHM m (\a -> runHM (f a) k)
+
+-- | Map between underlying 'Monoid' types.
 map :: (m -> n) -> HoleyMonoid m r a -> HoleyMonoid n r a
 map g m = HoleyMonoid (\k -> runHM m (k . g))
 
 -- | Run the computation, resulting in a function that still expects some
--- arguments. The number of arguments that is still expected will be equal to the
--- number of 'later's the computation is built of.
+-- arguments. The number of arguments that is still expected will be equal to
+-- the number of 'later's the computation is built of.
 run :: HoleyMonoid m m a -> a
 run m = runHM m id
