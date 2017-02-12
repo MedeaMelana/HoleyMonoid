@@ -79,7 +79,7 @@ str :: Format b (String -> b)
 str = arg id
 
 -- | Expect a number.
-num :: Num a => Format b (a -> b)
+num :: (Num a, Show a) => Format b (a -> b)
 num = sh
 
 -- | Expect a 'show'able argument.
@@ -112,7 +112,7 @@ class FormatLike x a b | x -> a b where
 instance FormatLike (Format a b) a b where
   toFormat = id
 
-instance FormatLike Char a a where
+instance FormatLike Char a a => FormatLike Char a a where
   toFormat c = lit [c]
 
 instance FormatLike x a a => FormatLike [x] a a where
