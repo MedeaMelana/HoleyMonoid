@@ -1,5 +1,5 @@
 Name:           HoleyMonoid
-Version:        0.1.1
+Version:        0.1.2
 Synopsis:       Monoids with holes.
 Description:   	The 'HoleyMonoid' allows building monoidal values of which certain components are to be filled in later. For example:
                 .
